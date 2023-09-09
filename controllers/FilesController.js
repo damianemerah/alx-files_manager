@@ -113,7 +113,7 @@ class FilesController {
     // Update the value of isPublic to true
     await db.files.updateOne(
       { _id: ObjectId(fileId) },
-      { $set: { isPublic: true } }
+      { $set: { isPublic: true } },
     );
 
     // Return the updated file document with a status code 200
@@ -190,7 +190,7 @@ class FilesController {
     // Construct the local path to the file
     const localPath = path.join(
       process.env.FOLDER_PATH || '/tmp/files_manager',
-      file.localPath
+      file.localPath,
     );
 
     // Check if the file exists locally
