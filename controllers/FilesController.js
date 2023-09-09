@@ -1,5 +1,6 @@
 /* eslint-disable import/no-named-as-default */
 /* eslint-disable no-unused-vars */
+const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 const mime = require('mime-types');
@@ -73,9 +74,9 @@ class FilesController {
     const result = await db.files.insertOne(newFile);
 
     // Return the newly created file with a status code 201
-    res.status(201).json({
+    return res.status(201).json({
       id: result.insertedId.toString(),
-      userId: userId,
+      userId,
       name: newFile.name,
       type: newFile.type,
       isPublic: newFile.isPublic,
@@ -114,7 +115,7 @@ class FilesController {
     );
 
     // Return the updated file document with a status code 200
-    res.status(200).json(file);
+    return res.status(200).json(file);
   }
 
   // Unpublish a file by setting isPublic to false
@@ -148,7 +149,7 @@ class FilesController {
     );
 
     // Return the updated file document with a status code 200
-    res.status(200).json(file);
+    return res.status(200).json(file);
   }
 
   // Get the content of a file based on its ID
@@ -205,7 +206,7 @@ class FilesController {
       }
 
       res.setHeader('Content-Type', mimeType);
-      res.status(200).send(data);
+      return res.status(200).send(data);
     });
   }
 }

@@ -1,9 +1,8 @@
 // controllers/UsersController.js
 
-const { ObjectId } = require('mongodb'); // Import ObjectId from MongoDB
 const sha1 = require('sha1'); // Import the sha1 library for hashing
-
 const DBClient = require('../utils/db');
+
 const db = new DBClient();
 
 class UsersController {
@@ -40,10 +39,10 @@ class UsersController {
       const result = await db.users.insertOne(newUser);
 
       // Return the newly created user with only email and id
-      res.status(201).json({ id: result.insertedId, email });
+      return res.status(201).json({ id: result.insertedId, email });
     } catch (error) {
       console.error('Error creating user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 }
