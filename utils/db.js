@@ -21,6 +21,7 @@ class DBClient {
       return this.client.db().collection('users').countDocuments();
     } catch (err) {
       console.error(err);
+      throw err;
     }
   }
 
@@ -29,6 +30,7 @@ class DBClient {
       return this.client.db().collection('files').countDocuments();
     } catch (err) {
       console.error(err);
+      throw err;
     }
   }
 

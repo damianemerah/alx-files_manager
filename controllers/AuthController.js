@@ -52,7 +52,7 @@ class AuthController {
     await redisClient.del(key);
 
     // Return a successful response with status code 204 (no content)
-    res.status(204).send();
+    return res.status(204).send();
   }
 }
 
