@@ -14,7 +14,9 @@ const db = new DBClient();
 class FilesController {
   // Create a new file in the database and on disk
   static async postUpload(req, res) {
-    const { name, type, data, parentId, isPublic } = req.body;
+    const {
+      name, type, data, parentId, isPublic,
+    } = req.body;
 
     // Retrieve the user based on the token
     const key = `auth_${req.token}`;
@@ -145,7 +147,7 @@ class FilesController {
     // Update the value of isPublic to false
     await db.files.updateOne(
       { _id: ObjectId(fileId) },
-      { $set: { isPublic: false } }
+      { $set: { isPublic: false } },
     );
 
     // Return the updated file document with a status code 200
