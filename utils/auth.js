@@ -49,9 +49,8 @@ export const getUserFromXToken = async (req) => {
   if (!userId) {
     return null;
   }
-  const user = await (
-    await dbClient.usersCollection()
-  ).findOne({ _id: new mongoDBCore.BSON.ObjectId(userId) });
+  const user = await (await dbClient.usersCollection())
+    .findOne({ _id: new mongoDBCore.BSON.ObjectId(userId) });
   return user || null;
 };
 

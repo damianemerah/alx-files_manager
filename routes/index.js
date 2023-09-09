@@ -1,52 +1,37 @@
-const express = require('express');
+// eslint-disable-next-line no-unused-vars
+import { Express } from 'express';
+import AppController from '../controllers/AppController';
+import AuthController from '../controllers/AuthController';
+import UsersController from '../controllers/UsersController';
+import FilesController from '../controllers/FilesController';
+import { basicAuthenticate, xTokenAuthenticate } from '../middlewares/auth';
+import { APIError, errorResponse } from '../middlewares/error';
 
-const router = express.Router();
-const AppController = require('../controllers/AppController');
-const UsersController = require('../controllers/UsersController');
-const AuthController = require('../controllers/AuthController');
-const FilesController = require('../controllers/FilesController');
-const { fileQueue } = require('../worker'); // Import fileQueue from the worker module
-const { authenticate } = require('../middleware/auth');
+/**
+ * Injects routes with their handlers to the given Express application.
+ * @param {Express} api
+ */
+const injectRoutes = (api) => {
+  api.get('/status', AppController.getStatus);
+  api.get('/stats', AppController.getStats);
 
-router.get('/status', AppController.getStatus);
-router.get('/stats', AppController.getStats);
-router.post('/users', UsersController.postNew);
-router.get('/connect', AuthController.getConnect);
-router.get('/disconnect', AuthController.getDisconnect);
-router.get('/users/me', UsersController.getMe);
-router.post('/files', AuthController.verifyToken, FilesController.postUpload);
-router.put(
-  '/files/:id/publish',
-  AuthController.verifyToken,
-  FilesController.putPublish
-);
-router.put(
-  '/files/:id/unpublish',
-  AuthController.verifyToken,
-  FilesController.putUnpublish
-);
-router.get(
-  '/files/:id/data',
-  AuthController.verifyToken,
-  FilesController.getFile
-);
+  api.get('/connect', basicAuthenticate, AuthController.getConnect);
+  api.get('/disconnect', xTokenAuthenticate, AuthController.getDisconnect);
 
-// Update the endpoint for creating a new file to start a background job
-router.post(
-  '/files',
-  AuthController.verifyToken,
-  FilesController.postUpload,
-  async (req, res) => {
-    const { userId } = req.token;
-    const fileId = req.responseBody.id;
+  api.post('/users', UsersController.postNew);
+  api.get('/users/me', xTokenAuthenticate, UsersController.getMe);
 
-    // Add a job to the queue for generating thumbnails
-    await fileQueue.add({ userId, fileId });
+  api.post('/files', xTokenAuthenticate, FilesController.postUpload);
+  api.get('/files/:id', xTokenAuthenticate, FilesController.getShow);
+  api.get('/files', xTokenAuthenticate, FilesController.getIndex);
+  api.put('/files/:id/publish', xTokenAuthenticate, FilesController.putPublish);
+  api.put('/files/:id/unpublish', xTokenAuthenticate, FilesController.putUnpublish);
+  api.get('/files/:id/data', FilesController.getFile);
 
-    return res.status(201).json(req.responseBody);
-  }
-);
+  api.all('*', (req, res, next) => {
+    errorResponse(new APIError(404, `Cannot ${req.method} ${req.url}`), req, res, next);
+  });
+  api.use(errorResponse);
+};
 
-router.get('/files', authenticate, FilesController.getIndex);
-
-module.exports = router;
+export default injectRoutes;
